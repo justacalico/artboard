@@ -1,4 +1,4 @@
-package dev.artboard.artboard
+package gitlab.httpanimations.artboard
 
 import io.flutter.embedding.android.FlutterActivity
 
