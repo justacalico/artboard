@@ -7,20 +7,24 @@ import 'src/drawing/drawing_store.dart';
 import 'src/ui/canvas_page.dart';
 
 class ArtboardApp extends StatelessWidget {
-  const ArtboardApp({super.key, this.notePlayer, this.exporter, this.store});
+  const ArtboardApp({super.key, this.notePlayer, this.exporter, this.store, this.locale});
 
   final NotePlayer? notePlayer;
   final LoopExporter? exporter;
   final DrawingStore? store;
+  final Locale? locale;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      locale: locale,
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         useMaterial3: true,
+        fontFamily: 'Quicksand',
         scaffoldBackgroundColor: const Color(0xFFF5F3EE),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF5B4BC4),
