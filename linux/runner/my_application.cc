@@ -1,6 +1,7 @@
 #include "my_application.h"
 
 #include <flutter_linux/flutter_linux.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
@@ -53,6 +54,22 @@ static void my_application_activate(GApplication* application) {
   }
 
   gtk_window_set_default_size(window, 1280, 720);
+
+  // Load the window icon from the bundle's data directory (sibling of the
+  // executable: <bundle>/data/artboard_icon.png).
+  g_autoptr(GError) link_error = nullptr;
+  g_autofree char* exe_target = g_file_read_link("/proc/self/exe", &link_error);
+  if (exe_target != nullptr) {
+    g_autofree char* exe_dir = g_path_get_dirname(exe_target);
+    g_autofree char* icon_path =
+        g_build_filename(exe_dir, "data", "artboard_icon.png", nullptr);
+    g_autoptr(GError) icon_error = nullptr;
+    g_autoptr(GdkPixbuf) icon =
+        gdk_pixbuf_new_from_file(icon_path, &icon_error);
+    if (icon != nullptr) {
+      gtk_window_set_icon(window, icon);
+    }
+  }
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
