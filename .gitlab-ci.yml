@@ -30,11 +30,22 @@ variables:
   before_script:
     - apk add --no-cache bash curl jq git github-cli openssh-client
 
-pages:
-  stage: build
-  image: ghcr.io/cirruslabs/flutter:stable
+# cirruslabs/flutter tags lag behind Flutter releases, so the SDK is cloned
+# at the pinned version instead of using a prebuilt image.
+.flutter-common: &flutter-common
+  image: debian:bookworm
   variables:
     GIT_DEPTH: "1"
+    FLUTTER_VERSION: "3.44.6"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git curl unzip xz-utils ca-certificates file
+    - git clone --depth 1 --branch "$FLUTTER_VERSION" https://github.com/flutter/flutter.git /opt/flutter
+    - export PATH="/opt/flutter/bin:$PATH"
+    - flutter config --no-analytics
+
+pages:
+  stage: build
+  <<: *flutter-common
   script:
     # Pages unique domains serve the site at /, not /$CI_PROJECT_NAME/.
     - flutter build web --release --base-href "/"
@@ -47,9 +58,7 @@ pages:
 
 test:
   stage: build
-  image: ghcr.io/cirruslabs/flutter:stable
-  variables:
-    GIT_DEPTH: "1"
+  <<: *flutter-common
   script:
     - flutter pub get
     - flutter analyze
