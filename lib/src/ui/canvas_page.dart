@@ -3,6 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../audio/audio_engine.dart';
+import '../audio/loop_exporter.dart';
+import '../audio/loop_renderer.dart';
+import '../audio/note_player.dart';
 import '../drawing/drawing_controller.dart';
 import '../music/music_controller.dart';
 import '../playback/playback_controller.dart';
@@ -16,10 +20,13 @@ import 'tool_deck.dart';
 
 /// Home screen: drawing paper on top, tool decks below.
 class CanvasPage extends StatefulWidget {
-  const CanvasPage({super.key, this.onNotes});
+  const CanvasPage({super.key, this.notePlayer, this.exporter});
 
-  /// Sink for triggered notes; the audio layer plugs in here.
-  final void Function(List<NoteTrigger>)? onNotes;
+  /// Sound sink for live notes; null keeps the app silent.
+  final NotePlayer? notePlayer;
+
+  /// File sink for the exported loop; defaults to the platform saver.
+  final LoopExporter? exporter;
 
   @override
   State<CanvasPage> createState() => _CanvasPageState();
@@ -29,6 +36,8 @@ class _CanvasPageState extends State<CanvasPage> {
   late final DrawingController _drawing;
   late final MusicController _music;
   late final PlaybackController _playback;
+  late final LoopExporter _exporter;
+  AudioEngine? _engine;
   final _random = Random();
   List<dynamic>? _saved;
 
@@ -37,16 +46,38 @@ class _CanvasPageState extends State<CanvasPage> {
     super.initState();
     _drawing = DrawingController();
     _music = MusicController();
+    _exporter = widget.exporter ?? LoopExporter();
+    final player = widget.notePlayer;
+    if (player != null) _engine = AudioEngine(player);
     _playback = PlaybackController(
       () => _drawing.allStrokes,
       () => _music.mapper,
-      (notes) => widget.onNotes?.call(notes),
+      _onNotes,
       tempo: () => _music.tempo,
     );
   }
 
+  void _onNotes(List<NoteTrigger> notes) =>
+      _engine?.playAll(notes, _music.instrumentFor);
+
+  Future<void> _export() async {
+    final l10n = AppLocalizations.of(context);
+    _toast(l10n.exportStarted);
+    final wav = renderLoopWav(
+      strokes: _drawing.allStrokes,
+      mapper: _music.mapper,
+      instrumentFor: _music.instrumentFor,
+      tempo: _music.tempo,
+      width: _playback.size.width,
+      height: _playback.size.height,
+    );
+    await _exporter.save(wav);
+    if (mounted) _toast(l10n.exportDone);
+  }
+
   @override
   void dispose() {
+    _engine?.dispose();
     _playback.dispose();
     _drawing.dispose();
     _music.dispose();
@@ -105,6 +136,7 @@ class _CanvasPageState extends State<CanvasPage> {
                   playback: _playback,
                   onSurprise: () =>
                       _drawing.doodle(_random, _music.mapper, _playback.size),
+                  onExport: _export,
                 ),
                 const SizedBox(height: 12),
                 ColorDeck(drawing: _drawing),

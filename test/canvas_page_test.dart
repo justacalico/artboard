@@ -1,14 +1,37 @@
+import 'dart:typed_data';
+
 import 'package:artboard/app.dart';
+import 'package:artboard/src/audio/loop_exporter.dart';
+import 'package:artboard/src/audio/note_player.dart';
 import 'package:artboard/src/playback/trigger_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _FakeExporter extends LoopExporter {
+  Uint8List? saved;
+
+  @override
+  Future<void> save(Uint8List wav) async => saved = wav;
+}
+
+class _FakePlayer extends NotePlayer {
+  var played = 0;
+
+  @override
+  void play(Uint8List wav) => played++;
+}
+
 void main() {
-  Future<void> pumpApp(WidgetTester tester, {void Function(List<NoteTrigger>)? onNotes}) async {
+  Future<void> pumpApp(
+    WidgetTester tester, {
+    void Function(List<NoteTrigger>)? onNotes,
+    NotePlayer? notePlayer,
+    LoopExporter? exporter,
+  }) async {
     tester.view.physicalSize = const Size(500, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(const ArtboardApp());
+    await tester.pumpWidget(ArtboardApp(notePlayer: notePlayer, exporter: exporter));
   }
 
   testWidgets('page shows canvas and all four decks', (tester) async {
@@ -125,6 +148,34 @@ void main() {
     // The strip is the only keyed LayoutBuilder row next to the octave buttons.
     final strip = find.ancestor(of: find.byIcon(Icons.keyboard_arrow_up), matching: find.byType(Row));
     expect(strip, findsWidgets);
+  });
+
+  testWidgets('export renders the loop and hands it to the saver', (tester) async {
+    final exporter = _FakeExporter();
+    await pumpApp(tester, exporter: exporter);
+    final canvas = find.byType(ClipRRect);
+    await tester.dragFrom(tester.getCenter(canvas) - const Offset(60, 0), const Offset(120, 30));
+    await tester.pump();
+    await tester.tap(find.byWidgetPredicate(
+      (w) => w is Icon && w.icon == Icons.circle && w.color == const Color(0xFFE0442A),
+    ));
+    await tester.pumpAndSettle();
+    expect(exporter.saved, isNotNull);
+    expect(String.fromCharCodes(exporter.saved!.sublist(0, 4)), 'RIFF');
+  });
+
+  testWidgets('live notes reach the note player', (tester) async {
+    final player = _FakePlayer();
+    await pumpApp(tester, notePlayer: player);
+    final canvas = find.byType(ClipRRect);
+    await tester.dragFrom(tester.getCenter(canvas) - const Offset(100, 0), const Offset(200, 20));
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.play_arrow));
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(const Duration(seconds: 3));
+    expect(player.played, greaterThan(0));
+    await tester.tap(find.byIcon(Icons.pause));
+    await tester.pump();
   });
 
   testWidgets('surprise button draws a doodle', (tester) async {
