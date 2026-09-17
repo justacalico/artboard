@@ -3,9 +3,11 @@ import 'dart:typed_data';
 import 'package:artboard/app.dart';
 import 'package:artboard/src/audio/loop_exporter.dart';
 import 'package:artboard/src/audio/note_player.dart';
+import 'package:artboard/src/drawing/drawing_store.dart';
 import 'package:artboard/src/playback/trigger_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeExporter extends LoopExporter {
   Uint8List? saved;
@@ -27,11 +29,15 @@ void main() {
     void Function(List<NoteTrigger>)? onNotes,
     NotePlayer? notePlayer,
     LoopExporter? exporter,
+    DrawingStore? store,
   }) async {
     tester.view.physicalSize = const Size(500, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(ArtboardApp(notePlayer: notePlayer, exporter: exporter));
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      ArtboardApp(notePlayer: notePlayer, exporter: exporter, store: store),
+    );
   }
 
   testWidgets('page shows canvas and all four decks', (tester) async {
@@ -141,6 +147,19 @@ void main() {
     await tester.tap(find.text('Save drawing'));
     await tester.pumpAndSettle();
     expect(find.text('Drawing saved'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.cloud_outlined));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear canvas'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.cloud_outlined));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Restore saved drawing'));
+    await tester.pumpAndSettle();
+    expect(find.text('Drawing restored'), findsOneWidget);
   });
 
   testWidgets('piano keys change the key', (tester) async {

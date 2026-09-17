@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import '../audio/loop_exporter.dart';
 import '../audio/loop_renderer.dart';
 import '../audio/note_player.dart';
 import '../drawing/drawing_controller.dart';
+import '../drawing/drawing_store.dart';
 import '../music/music_controller.dart';
 import '../playback/playback_controller.dart';
 import '../playback/trigger_engine.dart';
@@ -20,13 +22,16 @@ import 'tool_deck.dart';
 
 /// Home screen: drawing paper on top, tool decks below.
 class CanvasPage extends StatefulWidget {
-  const CanvasPage({super.key, this.notePlayer, this.exporter});
+  const CanvasPage({super.key, this.notePlayer, this.exporter, this.store});
 
   /// Sound sink for live notes; null keeps the app silent.
   final NotePlayer? notePlayer;
 
   /// File sink for the exported loop; defaults to the platform saver.
   final LoopExporter? exporter;
+
+  /// Device storage for the saved drawing.
+  final DrawingStore? store;
 
   @override
   State<CanvasPage> createState() => _CanvasPageState();
@@ -37,9 +42,9 @@ class _CanvasPageState extends State<CanvasPage> {
   late final MusicController _music;
   late final PlaybackController _playback;
   late final LoopExporter _exporter;
+  late final DrawingStore _store;
   AudioEngine? _engine;
   final _random = Random();
-  List<dynamic>? _saved;
 
   @override
   void initState() {
@@ -47,6 +52,7 @@ class _CanvasPageState extends State<CanvasPage> {
     _drawing = DrawingController();
     _music = MusicController();
     _exporter = widget.exporter ?? LoopExporter();
+    _store = widget.store ?? DrawingStore();
     final player = widget.notePlayer;
     if (player != null) _engine = AudioEngine(player);
     _playback = PlaybackController(
@@ -145,16 +151,17 @@ class _CanvasPageState extends State<CanvasPage> {
                 const SizedBox(height: 12),
                 LayerDeck(
                   drawing: _drawing,
-                  onSave: () {
-                    _saved = _drawing.toJson();
-                    _toast(l10n.drawingSaved);
+                  onSave: () async {
+                    await _store.save(jsonEncode(_drawing.toJson()));
+                    if (mounted) _toast(l10n.drawingSaved);
                   },
-                  onRestore: () {
-                    final saved = _saved;
+                  onRestore: () async {
+                    final saved = await _store.load();
+                    if (!mounted) return;
                     if (saved == null) {
                       _toast(l10n.nothingToRestore);
                     } else {
-                      _drawing.loadJson(saved);
+                      _drawing.loadJson(jsonDecode(saved) as List);
                       _toast(l10n.drawingRestored);
                     }
                   },
