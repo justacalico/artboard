@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:artboard/src/drawing/stroke.dart';
 import 'package:flutter_test/flutter_test.dart';
 
