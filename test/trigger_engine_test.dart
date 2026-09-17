@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:artboard/src/drawing/stroke.dart';
 import 'package:artboard/src/music/pitch_mapper.dart';
 import 'package:artboard/src/music/scale.dart';

@@ -1,0 +1,168 @@
+{
+  "@@locale": "en",
+  "appTitle": "Artboard",
+  "@appTitle": {
+    "description": "Application name shown in the title bar"
+  },
+  "play": "Play",
+  "@play": {
+    "description": "Tooltip for the play button"
+  },
+  "pause": "Pause",
+  "@pause": {
+    "description": "Tooltip for the pause button"
+  },
+  "penTool": "Pen",
+  "@penTool": {
+    "description": "Tooltip for the pen tool"
+  },
+  "eraserTool": "Eraser",
+  "@eraserTool": {
+    "description": "Tooltip for the eraser tool"
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Tooltip for the undo button"
+  },
+  "clearCanvas": "Clear canvas",
+  "@clearCanvas": {
+    "description": "Tooltip for the button that wipes every layer"
+  },
+  "surpriseMe": "Surprise me",
+  "@surpriseMe": {
+    "description": "Tooltip for the button that draws a random doodle"
+  },
+  "exportLoop": "Export loop as WAV",
+  "@exportLoop": {
+    "description": "Tooltip for the button that renders the loop to an audio file"
+  },
+  "exportStarted": "Rendering loop…",
+  "@exportStarted": {
+    "description": "Snack bar shown while the audio file renders"
+  },
+  "exportDone": "Loop exported",
+  "@exportDone": {
+    "description": "Snack bar shown when the audio file is ready"
+  },
+  "tempo": "Tempo",
+  "@tempo": {
+    "description": "Label for the scan speed control"
+  },
+  "decreaseTempo": "Decrease tempo",
+  "@decreaseTempo": {
+    "description": "Tooltip for the slower button"
+  },
+  "increaseTempo": "Increase tempo",
+  "@increaseTempo": {
+    "description": "Tooltip for the faster button"
+  },
+  "chooseScale": "Choose a scale",
+  "@chooseScale": {
+    "description": "Title of the scale picker sheet"
+  },
+  "chooseTimbre": "Choose a sound",
+  "@chooseTimbre": {
+    "description": "Title of the timbre picker sheet"
+  },
+  "scaleMajor": "Major",
+  "@scaleMajor": {
+    "description": "Name of the major scale"
+  },
+  "scaleMinor": "Minor",
+  "@scaleMinor": {
+    "description": "Name of the natural minor scale"
+  },
+  "scalePentatonicMajor": "Major pentatonic",
+  "@scalePentatonicMajor": {
+    "description": "Name of the major pentatonic scale"
+  },
+  "scalePentatonicMinor": "Minor pentatonic",
+  "@scalePentatonicMinor": {
+    "description": "Name of the minor pentatonic scale"
+  },
+  "scaleDorian": "Dorian",
+  "@scaleDorian": {
+    "description": "Name of the dorian mode"
+  },
+  "scaleBlues": "Blues",
+  "@scaleBlues": {
+    "description": "Name of the blues scale"
+  },
+  "timbreSine": "Sine",
+  "@timbreSine": {
+    "description": "Sine wave timbre name"
+  },
+  "timbreTriangle": "Triangle",
+  "@timbreTriangle": {
+    "description": "Triangle wave timbre name"
+  },
+  "timbreSquare": "Square",
+  "@timbreSquare": {
+    "description": "Square wave timbre name"
+  },
+  "timbreSawtooth": "Sawtooth",
+  "@timbreSawtooth": {
+    "description": "Sawtooth wave timbre name"
+  },
+  "octaveUp": "Octave up",
+  "@octaveUp": {
+    "description": "Tooltip for the octave up button"
+  },
+  "octaveDown": "Octave down",
+  "@octaveDown": {
+    "description": "Tooltip for the octave down button"
+  },
+  "layerLabel": "Layer {number}",
+  "@layerLabel": {
+    "description": "Tooltip for a drawing layer button",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "strokeThin": "Thin stroke",
+  "@strokeThin": {
+    "description": "Tooltip for the thin pen width"
+  },
+  "strokeMedium": "Medium stroke",
+  "@strokeMedium": {
+    "description": "Tooltip for the medium pen width"
+  },
+  "strokeThick": "Thick stroke",
+  "@strokeThick": {
+    "description": "Tooltip for the thick pen width"
+  },
+  "saveDrawing": "Save drawing",
+  "@saveDrawing": {
+    "description": "Menu item that stores the drawing on this device"
+  },
+  "restoreDrawing": "Restore saved drawing",
+  "@restoreDrawing": {
+    "description": "Menu item that reloads the stored drawing"
+  },
+  "drawingSaved": "Drawing saved",
+  "@drawingSaved": {
+    "description": "Snack bar shown after the drawing is stored"
+  },
+  "drawingRestored": "Drawing restored",
+  "@drawingRestored": {
+    "description": "Snack bar shown after the drawing is reloaded"
+  },
+  "nothingToRestore": "No saved drawing yet",
+  "@nothingToRestore": {
+    "description": "Snack bar shown when there is nothing stored"
+  },
+  "helpTooltip": "How it works",
+  "@helpTooltip": {
+    "description": "Tooltip for the help button"
+  },
+  "helpBody": "Draw on the paper, then press play. The scan line turns your drawing into music: height is pitch, colour is the instrument.",
+  "@helpBody": {
+    "description": "Explanation paragraph inside the help dialog"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Label for the button that dismisses a dialog"
+  }
+}
