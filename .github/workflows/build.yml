@@ -404,27 +404,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update nightly release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: nightly
-          name: Nightly Build
-          body: |
-            Automated nightly build from commit ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cat > notes.md <<EOF
+          Automated nightly build from commit ${{ github.sha }}
 
-            **Branch:** ${{ github.ref_name }}
-            **Version:** ${{ needs.setup.outputs.version }}
-            **Build:** #${{ github.run_number }}
-            **Date:** ${{ needs.setup.outputs.build_date }}
-            **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          **Version:** ${{ needs.setup.outputs.version }}
+          **Build:** #${{ github.run_number }}
+          **Date:** ${{ needs.setup.outputs.build_date }}
+          **Commit:** ${{ github.sha }}
 
-            > This release is automatically updated on every push. Artifacts are untested nightly builds.
-          files: |
-            release-assets/*
-            SHA256SUMS.txt
-          prerelease: true
-          make_latest: false
+          > This release is automatically updated on every push. Artifacts are untested nightly builds.
+          EOF
+          scripts/gh-release.sh nightly "Nightly Build" notes.md --prerelease release-assets SHA256SUMS.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Release
@@ -492,32 +487,27 @@ jobs:
           cat ../SHA256SUMS.txt
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.meta.outputs.release_tag }}
-          name: Artboard ${{ steps.meta.outputs.release_tag }}
-          generate_release_notes: true
-          body: |
-            **Version:** ${{ needs.setup.outputs.version }}
-            **Build:** #${{ github.run_number }}
-            **Date:** ${{ needs.setup.outputs.build_date }}
-            **Commit:** ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cat > notes.md <<EOF
+          **Version:** ${{ needs.setup.outputs.version }}
+          **Build:** #${{ github.run_number }}
+          **Date:** ${{ needs.setup.outputs.build_date }}
+          **Commit:** ${{ github.sha }}
 
-            ### Artifacts
-            - Android (signed apk + aab)
-            - Linux desktop (x86_64 + arm64: tar.gz, zip, deb, rpm)
-            - Windows (x86_64 + arm64: zip)
-            - macOS (arm64: zip, dmg)
-            - iOS (arm64: unsigned ipa)
+          ### Artifacts
+          - Android (signed apk + aab)
+          - Linux desktop (x86_64 + arm64: tar.gz, zip, deb, rpm)
+          - Windows (x86_64 + arm64: zip)
+          - macOS (arm64: zip, dmg)
+          - iOS (arm64: unsigned ipa)
 
-            ### Verification
-            SHA256 checksums are in `SHA256SUMS.txt`.
-          files: |
-            release-assets/*
-            SHA256SUMS.txt
-          prerelease: false
+          ### Verification
+          SHA256 checksums are in \`SHA256SUMS.txt\`.
+          EOF
+          scripts/gh-release.sh "${{ steps.meta.outputs.release_tag }}" "Artboard ${{ steps.meta.outputs.release_tag }}" notes.md --generate-notes release-assets SHA256SUMS.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   gitlab-sync:
     name: Trigger GitLab sync
