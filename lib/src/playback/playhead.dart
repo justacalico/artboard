@@ -15,7 +15,7 @@ class Playhead {
   bool advance(Duration dt) {
     _x += speed * dt.inMicroseconds / Duration.microsecondsPerSecond;
     if (_x >= width) {
-      _x = 0;
+      _x %= width;
       return true;
     }
     return false;

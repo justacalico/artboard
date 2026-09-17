@@ -8,10 +8,10 @@ void main() {
     expect(head.x, 50);
   });
 
-  test('advance wraps at width and reports it', () {
+  test('advance wraps at width and keeps the remainder', () {
     final head = Playhead(width: 100, speed: 120);
     expect(head.advance(const Duration(seconds: 1)), isTrue);
-    expect(head.x, 0);
+    expect(head.x, 20);
   });
 
   test('advance does not wrap mid-sweep', () {
