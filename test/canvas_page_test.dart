@@ -5,6 +5,7 @@ import 'package:artboard/src/audio/loop_exporter.dart';
 import 'package:artboard/src/audio/note_player.dart';
 import 'package:artboard/src/drawing/drawing_store.dart';
 import 'package:artboard/src/playback/trigger_engine.dart';
+import 'package:artboard/src/ui/piano_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -164,9 +165,56 @@ void main() {
 
   testWidgets('piano keys change the key', (tester) async {
     await pumpApp(tester);
-    // The strip is the only keyed LayoutBuilder row next to the octave buttons.
-    final strip = find.ancestor(of: find.byIcon(Icons.keyboard_arrow_up), matching: find.byType(Row));
-    expect(strip, findsWidgets);
+    final strip = tester.getRect(find.byType(PianoStrip));
+
+    // Low part of the third white key selects a natural.
+    await tester.tapAt(Offset(strip.left + strip.width * 2.5 / 7, strip.top + strip.height * 0.85));
+    await tester.pump();
+    var selected = find.descendant(
+      of: find.byType(PianoStrip),
+      matching: find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            (w.decoration as BoxDecoration?)?.color == const Color(0xFF1C1B1A) &&
+            (w.decoration as BoxDecoration?)?.border != null,
+      ),
+    );
+    expect(selected, findsOneWidget);
+
+    // High part of a black key selects a sharp.
+    await tester.tapAt(Offset(strip.left + strip.width / 7, strip.top + strip.height * 0.2));
+    await tester.pump();
+    selected = find.descendant(
+      of: find.byType(PianoStrip),
+      matching: find.byWidgetPredicate(
+        (w) => w is Container && (w.decoration as BoxDecoration?)?.color == const Color(0xFF6B4FCE),
+      ),
+    );
+    expect(selected, findsOneWidget);
+  });
+
+  testWidgets('tool buttons switch between pen and eraser', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.byIcon(Icons.auto_fix_normal));
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.edit));
+    await tester.pump();
+  });
+
+  testWidgets('octave buttons shift the pitch range', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.byIcon(Icons.keyboard_arrow_up));
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
+    await tester.pump();
+  });
+
+  testWidgets('width dots select the pen width', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.byWidgetPredicate(
+      (w) => w is Icon && w.icon == Icons.circle && w.size == 10,
+    ));
+    await tester.pump();
   });
 
   testWidgets('export renders the loop and hands it to the saver', (tester) async {

@@ -107,6 +107,35 @@ void main() {
     p.dispose();
   });
 
+  test('tempo defaults to 90 when no provider is given', () {
+    final sink = <NoteTrigger>[];
+    final p = PlaybackController(
+      () => strokes,
+      () => PitchMapper(scale: ScaleType.major),
+      sink.addAll,
+    );
+    p.configure(size);
+    p.play();
+    p.step(const Duration(milliseconds: 500));
+    expect(p.x, greaterThan(0));
+    p.dispose();
+  });
+
+  test('refresh notifies only while playing', () {
+    final sink = <NoteTrigger>[];
+    final p = build(strokes: strokes, sink: sink);
+    var notified = 0;
+    p.addListener(() => notified++);
+    p.refresh();
+    expect(notified, 0);
+    p.configure(size);
+    p.play();
+    notified = 0;
+    p.refresh();
+    expect(notified, 1);
+    p.dispose();
+  });
+
   test('configure with same size keeps state', () {
     final sink = <NoteTrigger>[];
     final p = build(strokes: strokes, sink: sink);

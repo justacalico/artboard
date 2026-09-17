@@ -35,6 +35,36 @@ void main() {
       expect(c.layers[0].single.points, hasLength(1));
     });
 
+    test('tiny moves do not grow the draft', () {
+      final c = DrawingController();
+      c.beginStroke(const Offset(10, 10));
+      c.extendStroke(const Offset(10.5, 10.5));
+      expect(c.draft!.points, hasLength(1));
+      c.endStroke();
+    });
+
+    test('eraser removes a single dot stroke', () {
+      final c = DrawingController();
+      c.beginStroke(const Offset(50, 50));
+      c.endStroke();
+      expect(c.layers[0], hasLength(1));
+      c.selectTool(DrawTool.eraser);
+      c.beginStroke(const Offset(52, 52));
+      expect(c.isEmpty, isTrue);
+    });
+
+    test('eraser keeps working while dragging', () {
+      final c = DrawingController();
+      c.beginStroke(const Offset(10, 50));
+      c.extendStroke(const Offset(90, 50));
+      c.endStroke();
+      c.selectTool(DrawTool.eraser);
+      c.beginStroke(const Offset(5, 90));
+      expect(c.layers[0], hasLength(1));
+      c.extendStroke(const Offset(50, 50));
+      expect(c.isEmpty, isTrue);
+    });
+
     test('endStroke without a draft is a no-op', () {
       final c = DrawingController();
       c.endStroke();
